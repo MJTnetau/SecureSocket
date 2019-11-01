@@ -1,0 +1,184 @@
+﻿
+
+ERROR -Last:0 Curr:7921
+-7921
+ERROR -Last:9408 Curr:9410
+ERROR -Last:9409 Curr:9411
+-9392-9393-9394-9395-9396-9397-9398-9399-9400-9401-9402-9403-9404-9405-9406-9407-9408-9410-9409-9411
+ERROR -Last:11481 Curr:11483
+-11463-11464-11465-11466-11467-11468-11469-11470-11471-11472-11473-11474-11475-11476-11477-11478-11479-11480-11481-11483
+
+
+
+
+
+// At around 350+ connected clients 
+// this erros on the for loop
+//-$exception{"Destination array was not long enough. Check destIndex and length, and the array's lower bounds."}	System.ArgumentException
+
+
+
+-		$exception	{""}	System.StackOverflowException
+An unhandled exception of type 'System.StackOverflowException' occurred in System.Net.Security.dll
+sslclient 96
+
+
+
+
+// dont user foreach. use (For i) instead
+// System.InvalidOperationException: 'Collection was modified; enumeration operation may not execute.'
+// This is an issue at high volumes and is a bug with foreach and thread safety. 
+// foreach evaluates the number of items at the list at the worng time
+// foreach (Receiver r in clients.ToList())
+
+
+
+
+
+
+
+
+Kicked Client : Exception during Broadcast
+Exception during Broadcast : System.NotSupportedException:  The WriteAsync method cannot be called when another write operation is pending.
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at SecureSocket.Server.SendToAll(String theMessage) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 472
+Cant EndWrite - System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<WriteSingleChunk>g__CompleteAsync|210_1[TWriteAdapter](ValueTask writeTask, Byte[] bufferToReturn)
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at SecureSocket.SslClient.WriteCallback(IAsyncResult ar) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\SslClient.cs:line 137
+Object Disposed exception during Kick: SSL stream errorSystem.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'System.Net.Sockets.Socket'.
+   at System.Net.Sockets.Socket.get_RemoteEndPoint()
+   at SecureSocket.Server.KickUser(SslClient c, String reason) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 594
+28/10/2019 3:11:55 PM - Client Disconnected - 10.1.1.1:60878
+Kicked Client : Exception during Broadcast
+IO exception during Run : ||||Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..||||System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<FillBufferAsync>g__InternalFillBufferAsync|215_0[TReadAdapter](TReadAdapter adap, ValueTask`1 task, Int32 min, Int32 initial)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TReadAdapter](TReadAdapter adapter, Memory`1 buffer)
+   at SecureSocket.Server.DecodeMessage(SslStream sslStream) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 399
+   at SecureSocket.Server.HandleClient(TcpClient client) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 346
+Cant EndWrite - System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<WriteSingleChunk>g__CompleteAsync|210_1[TWriteAdapter](ValueTask writeTask, Byte[] bufferToReturn)
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at SecureSocket.SslClient.WriteCallback(IAsyncResult ar) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\SslClient.cs:line 137
+Object Disposed exception during Kick: SSL stream errorSystem.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'System.Net.Sockets.Socket'.
+   at System.Net.Sockets.Socket.get_RemoteEndPoint()
+   at SecureSocket.Server.KickUser(SslClient c, String reason) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 594
+Exception during Broadcast : System.NotSupportedException:  The WriteAsync method cannot be called when another write operation is pending.
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at SecureSocket.Server.SendToAll(String theMessage) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 472
+IO exception during Run : ||||Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..||||System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<FillBufferAsync>g__InternalFillBufferAsync|215_0[TReadAdapter](TReadAdapter adap, ValueTask`1 task, Int32 min, Int32 initial)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TReadAdapter](TReadAdapter adapter, Memory`1 buffer)
+   at SecureSocket.Server.DecodeMessage(SslStream sslStream) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 399
+   at SecureSocket.Server.HandleClient(TcpClient client) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 346
+28/10/2019 3:11:55 PM - Client Disconnected - 10.1.1.1:60881
+Kicked Client : Exception during Broadcast
+Cant EndWrite - System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<WriteSingleChunk>g__CompleteAsync|210_1[TWriteAdapter](ValueTask writeTask, Byte[] bufferToReturn)
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at SecureSocket.SslClient.WriteCallback(IAsyncResult ar) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\SslClient.cs:line 137
+Exception during Broadcast : System.NotSupportedException:  The WriteAsync method cannot be called when another write operation is pending.
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at SecureSocket.Server.SendToAll(String theMessage) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 472
+Object Disposed exception during Kick: SSL stream errorSystem.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'System.Net.Sockets.Socket'.
+   at System.Net.Sockets.Socket.get_RemoteEndPoint()
+   at SecureSocket.Server.KickUser(SslClient c, String reason) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 594
+28/10/2019 3:11:55 PM - Client Disconnected - 10.1.1.1:60883
+IO exception during Run : ||||Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..||||System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<FillBufferAsync>g__InternalFillBufferAsync|215_0[TReadAdapter](TReadAdapter adap, ValueTask`1 task, Int32 min, Int32 initial)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TReadAdapter](TReadAdapter adapter, Memory`1 buffer)
+   at SecureSocket.Server.DecodeMessage(SslStream sslStream) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 399
+   at SecureSocket.Server.HandleClient(TcpClient client) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 346
+Kicked Client : Exception during Broadcast
+Exception during Broadcast : System.NotSupportedException:  The WriteAsync method cannot be called when another write operation is pending.
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at SecureSocket.Server.SendToAll(String theMessage) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 472
+Cant EndWrite - System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<WriteSingleChunk>g__CompleteAsync|210_1[TWriteAdapter](ValueTask writeTask, Byte[] bufferToReturn)
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at SecureSocket.SslClient.WriteCallback(IAsyncResult ar) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\SslClient.cs:line 137
+Object Disposed exception during Kick: SSL stream errorSystem.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'System.Net.Sockets.Socket'.
+   at System.Net.Sockets.Socket.get_RemoteEndPoint()
+   at SecureSocket.Server.KickUser(SslClient c, String reason) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 594
+IO exception during Run : ||||Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..||||System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<FillBufferAsync>g__InternalFillBufferAsync|215_0[TReadAdapter](TReadAdapter adap, ValueTask`1 task, Int32 min, Int32 initial)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TReadAdapter](TReadAdapter adapter, Memory`1 buffer)
+   at SecureSocket.Server.DecodeMessage(SslStream sslStream) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 399
+   at SecureSocket.Server.HandleClient(TcpClient client) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 346
+Cant EndWrite - System.NotSupportedException:  The WriteAsync method cannot be called when another write operation is pending.
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at SecureSocket.SslClient.WriteCallback(IAsyncResult ar) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\SslClient.cs:line 137
+Cant EndWrite - System.NotSupportedException:  The WriteAsync method cannot be called when another write operation is pending.
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at SecureSocket.SslClient.WriteCallback(IAsyncResult ar) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\SslClient.cs:line 137
+28/10/2019 3:11:56 PM - Client Disconnected - 10.1.1.1:60985
+stream was not CanWrite
+Kicked Client : Exception during Broadcast
+Exception during Broadcast : System.NotSupportedException:  The WriteAsync method cannot be called when another write operation is pending.
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at SecureSocket.Server.SendToAll(String theMessage) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 472
+Cant EndWrite - System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<WriteSingleChunk>g__CompleteAsync|210_1[TWriteAdapter](ValueTask writeTask, Byte[] bufferToReturn)
+   at System.Net.Security.SslStream.WriteAsyncInternal[TWriteAdapter](TWriteAdapter writeAdapter, ReadOnlyMemory`1 buffer)
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at SecureSocket.SslClient.WriteCallback(IAsyncResult ar) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\SslClient.cs:line 137
+Object Disposed exception during Kick: SSL stream errorSystem.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'System.Net.Sockets.Socket'.
+   at System.Net.Sockets.Socket.get_RemoteEndPoint()
+   at SecureSocket.Server.KickUser(SslClient c, String reason) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 594
+IO exception during Run : ||||Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..||||System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.GetResult(Int16 token)
+   at System.Net.Security.SslStream.<FillBufferAsync>g__InternalFillBufferAsync|215_0[TReadAdapter](TReadAdapter adap, ValueTask`1 task, Int32 min, Int32 initial)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TReadAdapter](TReadAdapter adapter, Memory`1 buffer)
+   at SecureSocket.Server.DecodeMessage(SslStream sslStream) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 399
+   at SecureSocket.Server.HandleClient(TcpClient client) in D:\^programming\_MJT\netcore\Net\SecureSocket\SecureSocket\Server.cs:line 346
+Broadcasting success 140/146

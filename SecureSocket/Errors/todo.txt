@@ -1,0 +1,4 @@
+﻿
+ping/pong replies
+
+implement simple hardcoded user/pass
