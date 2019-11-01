@@ -3,6 +3,7 @@ C# secure sockets via TCP, with TLS 1.2
 
 
 ## Example server app
+```
 using SecureSocket;
 
 Server consoleServer = new Server("certificatepath.pfx", "certificatepassword", allowInvalidCert);
@@ -18,10 +19,11 @@ consoleServer.StartListening(ip, port);
 
 // Optional - Tell the server to send out a regular heartbeat
 consoleServer.StartTicking(tickrate);
-
+```
 
 
 ## Example client app
+```
 using SecureSocket;
 
 Client consoleClient = new Client();
@@ -36,3 +38,4 @@ consoleClient.CreateClient();
 consoleClient.SetServerIPAddress(ip);
 consoleClient.SetPortNumber(port);
 consoleClient.Connect();
+```
