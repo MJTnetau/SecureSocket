@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SecureSocket.Auth</RootNamespace>
+    <AssemblyName>SecureSocket.Server.Auth.Sqlite</AssemblyName>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>SecureSocket.Server.Auth.Sqlite</PackageId>
+    <Version>1.0.0</Version>
+    <Title>SecureSocket SQLite User Store</Title>
+    <Authors>SecureSocket Contributors</Authors>
+    <Description>SQLite-backed IUserStore user database implementation for SecureSocket server authentication using PBKDF2 password hashing.</Description>
+    <PackageTags>socket;tls;ssl;sqlite;authentication;pbkdf2;server;security</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SecureSocket/SecureSocket</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SecureSocket/SecureSocket.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SecureSocket.Server\SecureSocket.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

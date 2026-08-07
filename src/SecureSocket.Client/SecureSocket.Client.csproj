@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SecureSocket</RootNamespace>
+    <AssemblyName>SecureSocket.Client</AssemblyName>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>SecureSocket.Client</PackageId>
+    <Version>1.0.0</Version>
+    <Title>SecureSocket Client</Title>
+    <Authors>SecureSocket Contributors</Authors>
+    <Description>High-performance zero-allocation C# TLS client library built on System.IO.Pipelines featuring UTF-8 header framing and raw binary payload streaming.</Description>
+    <PackageTags>socket;tls;ssl;client;pipelines;framing;zero-allocation;high-performance;async;network</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SecureSocket/SecureSocket</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SecureSocket/SecureSocket.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SecureSocket.Common\SecureSocket.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
