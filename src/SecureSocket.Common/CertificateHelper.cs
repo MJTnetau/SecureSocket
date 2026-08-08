@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+using System.Net;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace SecureSocket;
@@ -11,6 +12,7 @@ public static class CertificateHelper
     /// <summary>
     /// Loads a TLS certificate from a local .pfx/.cer file path or from the Certificate Store (CurrentUser or LocalMachine) by Thumbprint or Subject.
     /// Password can be loaded via User Secrets or Environment Variables.
+    /// Automatically generates a self-signed development certificate if target path is a non-existent .pfx file.
     /// </summary>
     /// <param name="pathOrThumbprint">Relative/absolute file path or Certificate Store thumbprint/subject.</param>
     /// <param name="password">Optional file password. Recommended to read from User Secrets or Environment Variables.</param>
@@ -35,7 +37,7 @@ public static class CertificateHelper
             string targetPath = File.Exists(fullPath) ? fullPath : pathOrThumbprint;
             return string.IsNullOrEmpty(password)
 #if NET9_0_OR_GREATER
-                ? X509CertificateLoader.LoadCertificateFromFile(targetPath)
+                ? X509CertificateLoader.LoadPkcs12FromFile(targetPath, null, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable)
                 : X509CertificateLoader.LoadPkcs12FromFile(targetPath, password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
 #else
                 ? new X509Certificate2(targetPath)
@@ -43,7 +45,32 @@ public static class CertificateHelper
 #endif
         }
 
-        // 2. Look in Certificate Store by Thumbprint or Subject Name
+        // 2. If path points to a local .pfx file that does not exist, auto-generate self-signed dev certificate
+        if (pathOrThumbprint.EndsWith(".pfx", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Path.GetExtension(pathOrThumbprint), ".pfx", StringComparison.OrdinalIgnoreCase))
+        {
+            string? dir = Path.GetDirectoryName(fullPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            string certPassword = password ?? "devpass";
+            using var devCert = CreateSelfSignedDevelopmentCertificate("CN=localhost", certPassword);
+            byte[] pfxBytes = devCert.Export(X509ContentType.Pfx, certPassword);
+            File.WriteAllBytes(fullPath, pfxBytes);
+
+            return string.IsNullOrEmpty(password)
+#if NET9_0_OR_GREATER
+                ? X509CertificateLoader.LoadPkcs12FromFile(fullPath, certPassword, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable)
+                : X509CertificateLoader.LoadPkcs12FromFile(fullPath, password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+#else
+                ? new X509Certificate2(fullPath, certPassword, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable)
+                : new X509Certificate2(fullPath, password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+#endif
+        }
+
+        // 3. Look in Certificate Store by Thumbprint or Subject Name
         string cleanSearch = pathOrThumbprint.Replace(" ", "").Replace(":", "").ToUpperInvariant();
 
         foreach (var location in new[] { StoreLocation.CurrentUser, StoreLocation.LocalMachine })
@@ -77,11 +104,12 @@ public static class CertificateHelper
     }
 
     /// <summary>
-    /// Generates an in-memory self-signed development TLS certificate for local testing.
+    /// Generates an in-memory self-signed development TLS certificate for local testing with SANs (localhost, 127.0.0.1, ::1).
     /// </summary>
     /// <param name="subjectName">Subject name for the certificate (e.g. CN=localhost).</param>
+    /// <param name="password">Optional PFX export password.</param>
     /// <returns>A self-signed X509Certificate2 with exportable private key.</returns>
-    public static X509Certificate2 CreateSelfSignedDevelopmentCertificate(string subjectName = "CN=localhost")
+    public static X509Certificate2 CreateSelfSignedDevelopmentCertificate(string subjectName = "CN=localhost", string? password = null)
     {
         using var rsa = RSA.Create(2048);
         var req = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
@@ -89,11 +117,18 @@ public static class CertificateHelper
         req.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment, critical: true));
         req.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.1") }, critical: false));
 
+        var sanBuilder = new SubjectAlternativeNameBuilder();
+        sanBuilder.AddDnsName("localhost");
+        sanBuilder.AddIpAddress(IPAddress.Loopback);
+        sanBuilder.AddIpAddress(IPAddress.IPv6Loopback);
+        req.CertificateExtensions.Add(sanBuilder.Build());
+
         var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddYears(2));
+        string certPassword = password ?? "devpass";
 #if NET9_0_OR_GREATER
-        return X509CertificateLoader.LoadPkcs12(cert.Export(X509ContentType.Pfx, "devpass"), "devpass", X509KeyStorageFlags.Exportable);
+        return X509CertificateLoader.LoadPkcs12(cert.Export(X509ContentType.Pfx, certPassword), certPassword, X509KeyStorageFlags.Exportable);
 #else
-        return new X509Certificate2(cert.Export(X509ContentType.Pfx, "devpass"), "devpass", X509KeyStorageFlags.Exportable);
+        return new X509Certificate2(cert.Export(X509ContentType.Pfx, certPassword), certPassword, X509KeyStorageFlags.Exportable);
 #endif
     }
 }

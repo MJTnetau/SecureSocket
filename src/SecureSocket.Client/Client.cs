@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Net;
@@ -240,10 +240,22 @@ public class Client : IDisposable, IAsyncDisposable
 
         if (_allowSelfSignedCerts)
         {
-            // Allow self-signed chain errors, but still reject hostname mismatches or missing certs
-            if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors)
+            // Reject if certificate was not supplied by server
+            if (sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNotAvailable))
             {
-                WriteLog("[WARNING] Accepting untrusted/self-signed server TLS certificate (Development Mode).");
+                WriteLog("[SECURITY ERROR] TLS Certificate validation failed: RemoteCertificateNotAvailable.");
+                return false;
+            }
+
+            bool isLoopback = string.Equals(_hostname, "localhost", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(_hostname, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(_hostname, "::1", StringComparison.OrdinalIgnoreCase)
+                || IPAddress.IsLoopback(_serverIP);
+
+            // Allow self-signed chain errors, and for local loopback connections allow hostname mismatches
+            if (isLoopback || !sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch))
+            {
+                WriteLog($"[WARNING] Accepting untrusted/self-signed server TLS certificate ({sslPolicyErrors}) (Development Mode).");
                 return true;
             }
         }

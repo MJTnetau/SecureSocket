@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Security;
@@ -163,10 +163,14 @@ public class Server : IDisposable, IAsyncDisposable
     /// </summary>
     public async Task StartListeningAsync(IPAddress? ip = null, int port = 0, CancellationToken cancellationToken = default)
     {
-        _ip = ip ?? Options.IPAddress ?? IPAddress.Any;
+        _ip = ip ?? Options.IPAddress ?? IPAddress.IPv6Any;
         _port = port > 0 ? port : Options.Port;
 
         _listener = new TcpListener(_ip, _port);
+        if (Equals(_ip, IPAddress.IPv6Any))
+        {
+            _listener.Server.DualMode = true;
+        }
 
         try
         {

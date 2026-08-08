@@ -9,7 +9,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>SecureSocket.Client</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Title>SecureSocket Client</Title>
     <Authors>SecureSocket Contributors</Authors>
     <Description>High-performance zero-allocation C# TLS client library built on System.IO.Pipelines featuring UTF-8 header framing and raw binary payload streaming.</Description>

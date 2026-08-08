@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 namespace SecureSocket;
 
@@ -8,9 +8,9 @@ namespace SecureSocket;
 public class ServerOptions
 {
     /// <summary>
-    /// Listening IP address. Defaults to <see cref="IPAddress.Any"/> (0.0.0.0).
+    /// Listening IP address. Defaults to <see cref="IPAddress.IPv6Any"/> (::) to support dual-stack (IPv4 + IPv6).
     /// </summary>
-    public IPAddress IPAddress { get; set; } = IPAddress.Any;
+    public IPAddress IPAddress { get; set; } = IPAddress.IPv6Any;
 
     /// <summary>
     /// Listening port number. Defaults to 20001.

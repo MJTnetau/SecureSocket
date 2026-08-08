@@ -9,7 +9,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>SecureSocket.Server.Auth.Sqlite</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Title>SecureSocket SQLite User Store</Title>
     <Authors>SecureSocket Contributors</Authors>
     <Description>SQLite-backed IUserStore user database implementation for SecureSocket server authentication using PBKDF2 password hashing.</Description>
