@@ -1,4 +1,4 @@
-﻿# Architecture & Protocol Framing Specification
+# Architecture & Protocol Framing Specification
 
 **SecureSocket** uses a high-performance, zero-allocation framing scheme built on `System.IO.Pipelines` designed for maximum throughput, low garbage collection overhead, and easy debugging.
 
@@ -87,7 +87,7 @@ Legacy socket implementations often allocate byte arrays (`byte[]`) for every pa
 
 ## Standard Message Opcodes (`MessageType`)
 
-Defined in [MessageType.cs](file:///c:/Dev/SecureSocket/src/SecureSocket.Common/MessageType.cs):
+Defined in [`MessageType.cs`](../src/SecureSocket.Common/MessageType.cs):
 
 | Opcode Range (`int`) | Enum Name | Description |
 | :--- | :--- | :--- |

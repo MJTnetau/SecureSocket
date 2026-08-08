@@ -34,3 +34,7 @@ Thumbs.db
 
 # Project documentation folder (excluded per configuration)
 doco/
+
+# Agent configuration directory
+.agents/
+

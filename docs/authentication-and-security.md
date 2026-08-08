@@ -1,4 +1,4 @@
-﻿# Authentication & Security Specification
+# Authentication & Security Specification
 
 **SecureSocket** provides built-in TLS encryption and an extensible user authentication system with pluggable user stores and PBKDF2 password hashing.
 
@@ -13,12 +13,12 @@ All communication in SecureSocket takes place over TLS encrypted sockets (`SslSt
 > - **In-Flight Encryption & Cryptographic Integrity**: Managed entirely by **TLS (`SslStream`)**. TLS encrypts all passwords, user credentials, and application payload data across the wire, ensuring confidentiality and protection against tampering.
 > - **Protocol Checksum (`10=XXX|`)**: Serves as a lightweight **framing delivery & sanity check** to confirm that full frame boundaries were received intact before parsing arguments and payloads.
 
-### 1. Generating Development Certificates
+### 1. Auto-Generating Development Certificates with SANs
 
-For local development and testing, `CertificateHelper` can create self-signed X.509 certificates dynamically in memory:
+For local development and testing, `CertificateHelper` can create self-signed X.509 certificates dynamically in memory or auto-generate `.pfx` files on disk:
 
 ```csharp
-// Generate a self-signed development certificate for CN=localhost
+// Generate a self-signed development certificate for CN=localhost with SANs (localhost, 127.0.0.1, ::1)
 X509Certificate2 cert = CertificateHelper.CreateSelfSignedDevelopmentCertificate("CN=localhost");
 
 // Instantiate server with certificate
@@ -27,10 +27,10 @@ var server = new SecureSocket.Server(cert);
 
 ### 2. Loading Certificates from File or Certificate Store
 
-In production environments, load your certificate from a PFX file or Windows Certificate Store (`CurrentUser` or `LocalMachine`):
+Load your certificate from a `.pfx` file or Windows Certificate Store (`CurrentUser` or `LocalMachine`). If the specified `.pfx` file path does not exist on disk, `CertificateHelper.LoadCertificate` automatically generates a self-signed development certificate containing Subject Alternative Name (SAN) extensions (`localhost`, `127.0.0.1`, `::1`) and saves it to disk for persistence across restarts:
 
 ```csharp
-// Load certificate from PFX file (password read from CERT_PASSWORD environment variable if omitted)
+// Load certificate from PFX file (auto-generates dev .pfx with SANs if path does not exist)
 string certPath = "C:\\certificates\\server.pfx";
 string password = Environment.GetEnvironmentVariable("CERT_PASSWORD") ?? "SecretPass";
 
@@ -50,15 +50,16 @@ var client = new SecureSocket.Client("127.0.0.1", 20001, allowSelfSignedCerts: t
 
 > [!CAUTION]
 > **Development vs. Production Certificate Validation Caveats**:
-> - When `allowSelfSignedCerts: true`, the client permits untrusted certificate chain errors (`SslPolicyErrors.RemoteCertificateChainErrors`) and emits a `[WARNING]` status log.
-> - **Hostname Mismatches (`RemoteCertificateNameMismatch`) and Missing Certificates (`RemoteCertificateNotAvailable`) remain strictly REJECTED** even when `allowSelfSignedCerts: true` is enabled.
-> - **Production Deployment**: Always leave `allowSelfSignedCerts: false` (the default) in production environments to ensure complete TLS certificate chain and hostname validation.
+> - When `allowSelfSignedCerts: true` is enabled, the client permits untrusted certificate chain errors (`SslPolicyErrors.RemoteCertificateChainErrors`) and emits a `[WARNING]` status log.
+> - **Local Loopback Hostname Tolerance**: For local loopback connections (`localhost`, `127.0.0.1`, `::1`), minor hostname mismatch flags (`RemoteCertificateNameMismatch`) are also tolerated so development certificates pass validation cleanly.
+> - **External Hosts & Missing Certs**: For external non-loopback hosts, hostname mismatches and missing certificates (`RemoteCertificateNotAvailable`) remain strictly **REJECTED**.
+> - **Production Deployment**: Always leave `allowSelfSignedCerts: false` (the default) in production environments to enforce complete TLS certificate chain and hostname validation.
 
 ---
 
 ## User Authentication Framework (`IUserStore`)
 
-Defined in [IUserStore.cs](file:///c:/Dev/SecureSocket/src/SecureSocket.Server/Auth/IUserStore.cs):
+Defined in [`IUserStore.cs`](../src/SecureSocket.Server/Auth/IUserStore.cs):
 
 ```csharp
 namespace SecureSocket.Auth;

@@ -13,6 +13,8 @@
 - **Zero-Allocation Stream Parsing**: Built on `.NET System.IO.Pipelines` (`PipeReader` / `PipeWriter`), `ReadOnlySequence<byte>`, and `Utf8Parser` to achieve $O(1)$ stream reading without managed heap Garbage Collection (GC) pressure.
 - **Human-Readable UTF-8 Wire Framing**: Uses pipe-delimited UTF-8 headers (`[MessageType]|[PayloadLength]|[Args]...\n`) that are easy to parse and human-readable in server console logs, diagnostic outputs, and trace loggers, while preserving raw binary data payloads.
 - **Raw Binary Payload Streaming**: Seamlessly transmits binary struct payloads (such as historical candles or market tick archives) alongside header metadata without payload serialization overhead.
+- **Auto-Generated Dev Certificates with SANs**: Automatically creates and persists self-signed `.pfx` certificates containing Subject Alternative Names (`localhost`, `127.0.0.1`, `::1`) when loading non-existent `.pfx` file paths.
+- **Dual-Stack Socket Listening**: Out-of-the-box support for simultaneous IPv4 (`127.0.0.1`) and IPv6 (`::1`) connections via `IPAddress.IPv6Any` and `DualMode` socket listeners.
 - **Built-In Authentication & Security**: Complete TLS (`SslStream`) transport security with modular `IUserStore` implementations (`InMemoryUserStore`, `JsonFileUserStore`, `SqliteUserStore`) and industry-standard PBKDF2 password hashing.
 - **Resilient Framing Guard & Auto-Recovery**: Includes tail validation guards, max message size caps, and automatic 50ms stream reconnect recovery.
 - **Idiomatic Developer API**: Rich C# event model (`ClientConnected`, `TextReceived`, `Ping`, `Tick`, `Status`) and custom message opcode extension handlers via `RegisterHandler`.
@@ -95,15 +97,15 @@ await client.Connect();
 
 ## Included Samples
 
-The repository includes runnable sample projects in the [`samples/`](file:///c:/Dev/SecureSocket/samples) directory illustrating common architecture patterns:
+The repository includes runnable sample projects in the [`samples/`](samples) directory illustrating common architecture patterns:
 
 ### 1. Basic Anonymous Ping & Telemetry Sample (`samples/Basic`)
-- **[Basic.Server](file:///c:/Dev/SecureSocket/samples/Basic/Server)**: Initializes an anonymous TLS server using self-signed development certificates, emitting 1-second server heartbeat ticks and displaying live console telemetry.
-- **[Basic.Client](file:///c:/Dev/SecureSocket/samples/Basic/Client)**: Connects anonymously, sends periodic ping nonces, and measures round-trip latency (displaying immediate latency and 10-tick rolling averages in the console title bar).
+- **[Basic.Server](samples/Basic/Server)**: Initializes an anonymous TLS server using self-signed development certificates, emitting 1-second server heartbeat ticks and displaying live console telemetry.
+- **[Basic.Client](samples/Basic/Client)**: Connects anonymously, sends periodic ping nonces, and measures round-trip latency (displaying immediate latency and 10-tick rolling averages in the console title bar).
 
 ### 2. Multi-User IRC Chat Application (`samples/Chat`)
-- **[Chat.Server](file:///c:/Dev/SecureSocket/samples/Chat/Server)**: Hosts a full-featured IRC-style chat server backed by an embedded SQLite user database (`SqliteUserStore` with PBKDF2 password hashing). Demonstrates custom opcode registration (`RegisterHandler`), multi-room channel broadcasting, user state management, and direct messaging.
-- **[Chat.Client](file:///c:/Dev/SecureSocket/samples/Chat/Client)**: Interactive CLI chat client supporting user registration (`/register`), authentication (`/login`), joining/leaving channels (`/join`, `/leave`), direct messaging (`/msg`), and online user lists (`/who`).
+- **[Chat.Server](samples/Chat/Server)**: Hosts a full-featured IRC-style chat server backed by an embedded SQLite user database (`SqliteUserStore` with PBKDF2 password hashing). Demonstrates custom opcode registration (`RegisterHandler`), multi-room channel broadcasting, user state management, and direct messaging.
+- **[Chat.Client](samples/Chat/Client)**: Interactive CLI chat client supporting user registration (`/register`), authentication (`/login`), joining/leaving channels (`/join`, `/leave`), direct messaging (`/msg`), and online user lists (`/who`).
 
 ---
 

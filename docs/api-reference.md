@@ -1,4 +1,4 @@
-﻿# SecureSocket API Reference
+# SecureSocket API Reference
 
 This document provides complete API reference documentation for all public classes, methods, properties, and events in **SecureSocket**.
 
@@ -209,13 +209,16 @@ public static class PipelineFraming
 
 ### `SecureSocket.CertificateHelper`
 
-Static security helper for loading or generating TLS certificates.
+Static security helper for loading or generating TLS certificates with SAN extensions.
 
 ```csharp
 public static class CertificateHelper
 {
+    // Loads certificate from file or store. Auto-generates self-signed dev .pfx with SANs if path is non-existent .pfx file.
     public static X509Certificate2 LoadCertificate(string pathOrThumbprint, string? password = null)
-    public static X509Certificate2 CreateSelfSignedDevelopmentCertificate(string subjectName = "CN=localhost")
+
+    // Generates in-memory self-signed dev certificate with SANs (localhost, 127.0.0.1, ::1)
+    public static X509Certificate2 CreateSelfSignedDevelopmentCertificate(string subjectName = "CN=localhost", string? password = null)
 }
 ```
 
@@ -239,7 +242,7 @@ public static class CertificateHelper
 
 | Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `IPAddress` | `IPAddress` | `IPAddress.Any` | Listening IP address. |
+| `IPAddress` | `IPAddress` | `IPAddress.IPv6Any` | Listening IP address. Defaults to `IPAddress.IPv6Any` (`::`) for IPv4 + IPv6 dual-stack listening. |
 | `Port` | `int` | `20001` | Listening port number. |
 | `TickIntervalMs` | `int` | `500` | Heartbeat tick interval in milliseconds. |
 | `IsVerbose` | `bool` | `true` | Enables verbose diagnostic log outputs to `Debug` and `Status` event. |

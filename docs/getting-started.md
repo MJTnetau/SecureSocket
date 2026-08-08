@@ -1,4 +1,4 @@
-﻿# Getting Started with SecureSocket
+# Getting Started with SecureSocket
 
 This guide walks you through setting up a **SecureSocket** server and client, configuring TLS certificates, and transmitting messages.
 
@@ -63,13 +63,13 @@ server.StartListening(port: 20001);
 #### Advanced Server Configuration with `ServerOptions` & Production Certificate
 
 ```csharp
-// 1. Load production certificate from PFX file or Certificate Store
+// 1. Load certificate from PFX file or Certificate Store (auto-generates .pfx with SANs if path does not exist)
 X509Certificate2 cert = CertificateHelper.LoadCertificate("C:\\certs\\server.pfx", "SecretPass");
 
 // 2. Configure server options
 var options = new ServerOptions
 {
-    IPAddress = IPAddress.Any,            // Listen on all network interfaces (0.0.0.0)
+    IPAddress = IPAddress.IPv6Any,        // Dual-stack listening on IPv4 (127.0.0.1) & IPv6 (::1)
     Port = 20002,                         // Custom listening port
     TickIntervalMs = 1000,                // 1-second server heartbeat tick interval
     IsVerbose = true,                      // Enable status diagnostic logging
