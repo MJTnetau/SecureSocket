@@ -205,6 +205,57 @@ class ClientProgram
 
 ---
 
+## Custom Message Types & Opcode Routing (`RegisterHandler`)
+
+Applications can define custom message opcodes outside the built-in ranges (e.g. `80..89` or `100+`) and register routing handlers on both `Server` and `Client`:
+
+```csharp
+// 1. Define custom opcode enum
+public enum AppMessageType : int
+{
+    CustomData = 80
+}
+
+// 2. Register server-side handler router
+server.RegisterHandler((MessageType)AppMessageType.CustomData, async (session, msg) => 
+{
+    string data = msg.GetArgument(0);
+    Console.WriteLine($"Received CustomData from {session.User}: {data}");
+});
+
+// 3. Register client-side handler router
+client.RegisterHandler((MessageType)AppMessageType.CustomData, msg => 
+{
+    string data = msg.GetArgument(0);
+    Console.WriteLine($"Client received CustomData: {data}");
+});
+
+// 4. Send custom opcode
+await client.SendMessageAsync((MessageType)AppMessageType.CustomData, "Payload text argument");
+```
+
+### Transmitting Metadata Arguments + Binary Payloads (Image Upload)
+
+```csharp
+// Send filename metadata arg + raw image bytes in binary payload
+byte[] imageBytes = File.ReadAllBytes("photo.jpg");
+await client.SendMessageAsync(
+    (MessageType)AppMessageType.UploadImage, 
+    new string[] { "photo.jpg", "image/jpeg" }, 
+    imageBytes
+);
+
+// Server handler extracts metadata and saves binary payload
+server.RegisterHandler((MessageType)AppMessageType.UploadImage, async (session, msg) =>
+{
+    string filename = msg.GetArgument(0);
+    byte[] payload = msg.BinaryPayload.ToArray();
+    await File.WriteAllBytesAsync(Path.Combine("uploads", filename), payload);
+});
+```
+
+---
+
 ## Next Steps
 
 - Explore [Architecture & Protocol Framing](architecture-and-protocol.md) to understand wire frame layouts and high-throughput zero-allocation stream parsing.

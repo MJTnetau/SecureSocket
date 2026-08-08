@@ -108,6 +108,92 @@ Defined in [`MessageType.cs`](../src/SecureSocket.Common/MessageType.cs):
 
 ---
 
+## Custom Protocol Extensions & Message Routing (`RegisterHandler`)
+
+Applications can extend the wire protocol with custom domain-specific message types without modifying the core `SecureSocket` library:
+
+### 1. Defining Custom Message Opcodes
+Define an application-level `enum` backed by `int` using non-reserved opcode numbers (e.g. `80..89` or `100+`):
+
+```csharp
+public enum TradeMessageType : int
+{
+    NewOrder = 80,
+    CancelOrder = 81,
+    ExecutionReport = 82
+}
+```
+
+### 2. Registering Server & Client Message Routers
+Both `Server` and `Client` feature opcode routing via `RegisterHandler(...)`. Because both `MessageType` and your custom enum use `int` as their underlying type, cast your custom enum values directly to `MessageType`:
+
+```csharp
+// Server-side opcode routing
+server.RegisterHandler((MessageType)TradeMessageType.NewOrder, OnNewOrder);
+server.RegisterHandler((MessageType)TradeMessageType.CancelOrder, OnCancelOrder);
+
+private async Task OnNewOrder(SslClientSession session, Message2 msg)
+{
+    string symbol = msg.GetArgument(0);
+    string qty = msg.GetArgument(1);
+    // Process new order...
+}
+
+// Client-side opcode routing
+client.RegisterHandler((MessageType)TradeMessageType.ExecutionReport, msg => 
+{
+    string orderId = msg.GetArgument(0);
+    string fillStatus = msg.GetArgument(1);
+    Console.WriteLine($"Order {orderId} execution update: {fillStatus}");
+});
+```
+
+### 3. Transmitting Custom Opcodes
+Send custom opcodes using `SendMessageAsync`:
+
+```csharp
+await client.SendMessageAsync((MessageType)TradeMessageType.NewOrder, "BTCUSD", "1.5");
+```
+
+### 4. Combining String Arguments & Binary Payloads (Image Upload Example)
+For messages requiring both metadata (like filename and MIME type) and raw binary data (like picture bytes), pass string arguments alongside a binary byte array:
+
+```csharp
+public enum MediaMessageType : int
+{
+    UploadImage = 105
+}
+
+// 1. Sender (Client): Read binary picture bytes and transmit metadata args + binary payload
+byte[] imageBytes = File.ReadAllBytes("avatar.jpg");
+
+await client.SendMessageAsync(
+    (MessageType)MediaMessageType.UploadImage,
+    new string[] { "avatar.jpg", "image/jpeg" }, // Positional metadata args
+    imageBytes                                  // Raw binary payload
+);
+
+// 2. Receiver (Server): Register handler and process string metadata + binary bytes
+server.RegisterHandler((MessageType)MediaMessageType.UploadImage, OnUploadImage);
+
+private async Task OnUploadImage(SslClientSession session, Message2 msg)
+{
+    // Extract metadata arguments
+    string filename = msg.GetArgument(0); // "avatar.jpg"
+    string mimeType = msg.GetArgument(1); // "image/jpeg"
+
+    if (msg.BinaryPayload.Length > 0)
+    {
+        // Save binary payload directly to disk or decode image
+        string savePath = Path.Combine("uploads", filename);
+        await File.WriteAllBytesAsync(savePath, msg.BinaryPayload.ToArray());
+        Console.WriteLine($"Saved {filename} ({msg.BinaryPayload.Length} bytes) from {session.User}");
+    }
+}
+```
+
+---
+
 ## Framing Guards & Resiliency
 
 To prevent memory exhaustion attacks and corrupted stream states:
