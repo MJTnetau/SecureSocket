@@ -1,4 +1,4 @@
-﻿namespace SecureSocket;
+namespace SecureSocket;
 
 /// <summary>
 /// Event arguments raised when a client connects to the server.
@@ -141,3 +141,26 @@ public class TickEventArgs : EventArgs
         Timestamp = timestamp;
     }
 }
+
+/// <summary>
+/// Event arguments raised for every raw message frame received (Raw Tap observation).
+/// </summary>
+public class RawFrameEventArgs : EventArgs
+{
+    /// <summary>
+    /// Gets the sender identification string.
+    /// </summary>
+    public string SenderInfo { get; }
+
+    /// <summary>
+    /// Gets the raw parsed Message2 frame.
+    /// </summary>
+    public Message2 Frame { get; }
+
+    public RawFrameEventArgs(string senderInfo, Message2 frame)
+    {
+        SenderInfo = senderInfo;
+        Frame = frame ?? throw new ArgumentNullException(nameof(frame));
+    }
+}
+

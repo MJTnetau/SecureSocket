@@ -62,10 +62,13 @@ public Task BroadcastAsync(MessageType msgType, params string[] arguments)
 | :--- | :--- | :--- | :--- |
 | `OnClientConnectedEvent` | `ClientConnected` | `EventHandler<ClientConnectedEventArgs>` | Raised when a client completes TLS handshake. |
 | `OnClientDisconnectedEvent` | `ClientDisconnected` | `EventHandler<ClientDisconnectEventArgs>` | Raised when a client disconnects. |
-| `OnTextReceivedEvent` | `TextReceived` | `EventHandler<TextReceivedEventArgs>` | Raised when a frame is received. |
+| `OnRawFrameEvent` | `RawFrameReceived` | `EventHandler<RawFrameEventArgs>` | Raised for 100% of received frames (Raw Tap observation). |
+| `OnUncategorizedMessageEvent` | `UncategorizedMessage` | `EventHandler<TextReceivedEventArgs>` | Raised when an unhandled frame spills over (Option 2). |
+| `OnTextReceivedEvent` | `TextReceived` | `EventHandler<TextReceivedEventArgs>` | Raised when an unhandled message frame arrives. |
 | `OnStatusEvent` | `Status` | `EventHandler<StatusEventArgs>` | Raised when log/status messages are written. |
 | `OnTickEvent` | `Tick` | `EventHandler<TickEventArgs>` | Raised on every heartbeat tick interval. |
 | `OnPingEvent` | `Ping` | `EventHandler<PingEventArgs>` | Raised when a ping is received or pong processed. |
+
 
 ---
 
@@ -148,11 +151,14 @@ public void UnregisterHandler(MessageType msgType)
 | :--- | :--- | :--- | :--- |
 | `OnServerConnectedEvent` | `ServerConnected` | `EventHandler<EventArgs>` | Raised on successful TLS connection. |
 | `OnServerDisconnectedEvent` | `ServerDisconnected` | `EventHandler<EventArgs>` | Raised when connection to server drops. |
-| `OnTextReceivedEvent` | `TextReceived` | `EventHandler<TextReceivedEventArgs>` | Raised when a message frame arrives. |
+| `OnRawFrameEvent` | `RawFrameReceived` | `EventHandler<RawFrameEventArgs>` | Raised for 100% of received frames (Raw Tap observation). |
+| `OnUncategorizedMessageEvent` | `UncategorizedMessage` | `EventHandler<TextReceivedEventArgs>` | Raised when an unhandled frame spills over (Option 2). |
+| `OnTextReceivedEvent` | `TextReceived` | `EventHandler<TextReceivedEventArgs>` | Raised when an unhandled message frame arrives. |
 | `OnPingEvent` | `Ping` | `EventHandler<PingEventArgs>` | Raised on Ping/Pong events with latency. |
 | `OnTickEvent` | `Tick` | `EventHandler<TickEventArgs>` | Raised on server tick broadcast. |
 | `OnStatusEvent` | `Status` | `EventHandler<StatusEventArgs>` | Raised on client status changes. |
 | `OnLogEvent` | `Log` | `EventHandler<LogEventArgs>` | Raised on internal log messages. |
+
 
 ---
 

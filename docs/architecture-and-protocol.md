@@ -110,7 +110,54 @@ Defined in [`MessageType.cs`](../src/SecureSocket.Common/MessageType.cs):
 
 ## Custom Protocol Extensions & Message Routing (`RegisterHandler`)
 
-Applications can extend the wire protocol with custom domain-specific message types without modifying the core `SecureSocket` library:
+Applications can extend the wire protocol with custom domain-specific message types without modifying the core `SecureSocket` library.
+
+### Message Processing & Routing Pipeline
+
+When a frame is received on the socket, it flows through a clean 4-stage pipeline:
+
+```text
+Incoming Socket Stream -> Message2 frame
+       │
+       ├──► Stage 1: Raw Tap (RawFrameReceived / OnRawFrameEvent) [Option 1]
+       │             Fires for 100% of received frames (Tick, Ping, Custom, etc.) without consuming them.
+       │
+       ├──► Stage 2: Built-in Switch Handlers
+       │             Handles built-in opcodes (Ping, Pong, Tick, RegisterResp, LoginResp).
+       │
+       ├──► Stage 3: Custom Handlers (_customHandlers)
+       │             Executes domain handlers registered via RegisterHandler.
+       │
+       └──► Stage 4: Uncategorized Spillover (UncategorizedMessage / TextReceived) [Option 2]
+                     Fires only if the frame was NOT handled in Stage 2 or Stage 3.
+```
+
+### Option 1: Raw Tap (`RawFrameReceived`)
+To inspect every single packet on the stream (e.g. for full logging, telemetry, or raw packet capture):
+```csharp
+client.RawFrameReceived += (sender, e) => 
+{
+    Console.WriteLine($"[RAW TAP] {e.Frame.MsgType} | Payload: {e.Frame}");
+};
+```
+*Note*: The raw tap is a non-consuming observation tap. It does not mark messages as read or prevent downstream handlers from running.
+
+### Option 2: Categorized Handlers + Uncategorized Spillover
+Register handlers for specific message types you are interested in. Any message type that is not handled by built-in cases or your custom handlers automatically spills over into `UncategorizedMessage` / `TextReceived`:
+
+```csharp
+// 1. Handle targeted custom opcodes
+client.RegisterHandler((MessageType)TradeMessageType.ExecutionReport, msg => 
+{
+    Console.WriteLine($"Execution Report: {msg.GetArgument(0)}");
+});
+
+// 2. Capture any unhandled spillover messages
+client.UncategorizedMessage += (sender, e) => 
+{
+    Console.WriteLine($"Uncategorized Message: {e.MessageText}");
+};
+```
 
 ### 1. Defining Custom Message Opcodes
 Define an application-level `enum` backed by `int` using non-reserved opcode numbers (e.g. `80..89` or `100+`):
@@ -147,6 +194,7 @@ client.RegisterHandler((MessageType)TradeMessageType.ExecutionReport, msg =>
     Console.WriteLine($"Order {orderId} execution update: {fillStatus}");
 });
 ```
+
 
 ### 3. Transmitting Custom Opcodes
 Send custom opcodes using `SendMessageAsync`:

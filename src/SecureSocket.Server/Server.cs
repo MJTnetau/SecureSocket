@@ -38,17 +38,22 @@ public class Server : IDisposable, IAsyncDisposable
     // Events (Idiomatic C# names + backwards compatible aliases)
     public EventHandler<ClientConnectedEventArgs>? OnClientConnectedEvent;
     public EventHandler<ClientDisconnectEventArgs>? OnClientDisconnectedEvent;
+    public EventHandler<RawFrameEventArgs>? OnRawFrameEvent;
     public EventHandler<TextReceivedEventArgs>? OnTextReceivedEvent;
+    public EventHandler<TextReceivedEventArgs>? OnUncategorizedMessageEvent;
     public EventHandler<StatusEventArgs>? OnStatusEvent;
     public EventHandler<TickEventArgs>? OnTickEvent;
     public EventHandler<PingEventArgs>? OnPingEvent;
 
     public event EventHandler<ClientConnectedEventArgs>? ClientConnected { add => OnClientConnectedEvent += value; remove => OnClientConnectedEvent -= value; }
     public event EventHandler<ClientDisconnectEventArgs>? ClientDisconnected { add => OnClientDisconnectedEvent += value; remove => OnClientDisconnectedEvent -= value; }
+    public event EventHandler<RawFrameEventArgs>? RawFrameReceived { add => OnRawFrameEvent += value; remove => OnRawFrameEvent -= value; }
     public event EventHandler<TextReceivedEventArgs>? TextReceived { add => OnTextReceivedEvent += value; remove => OnTextReceivedEvent -= value; }
+    public event EventHandler<TextReceivedEventArgs>? UncategorizedMessage { add => OnUncategorizedMessageEvent += value; remove => OnUncategorizedMessageEvent -= value; }
     public event EventHandler<StatusEventArgs>? Status { add => OnStatusEvent += value; remove => OnStatusEvent -= value; }
     public event EventHandler<TickEventArgs>? Tick { add => OnTickEvent += value; remove => OnTickEvent -= value; }
     public event EventHandler<PingEventArgs>? Ping { add => OnPingEvent += value; remove => OnPingEvent -= value; }
+
 
     #region Properties
 
@@ -369,14 +374,12 @@ public class Server : IDisposable, IAsyncDisposable
 
     private async Task ProcessReceivedFrameAsync(SslClientSession session, Message2 frame)
     {
-        // Filter out background heartbeat Ticks, Pings, and Pongs from status logs
-        if (frame.MsgType != MessageType.Tick && frame.MsgType != MessageType.Ping && frame.MsgType != MessageType.Pong)
-        {
-            WriteLog($"Received frame from {session.User}: {frame}");
-            OnTextReceivedEvent?.Invoke(this, new TextReceivedEventArgs(session.User.ToString(), frame.ToString(), frame));
-        }
+        // 1. Raw Tap: Raised for EVERY frame received from client (Option 1)
+        OnRawFrameEvent?.Invoke(this, new RawFrameEventArgs(session.User.ToString(), frame));
 
-        // 1. Built-in Protocol Handlers
+        bool handled = false;
+
+        // 2. Built-in Protocol Handlers
         switch (frame.MsgType)
         {
             case MessageType.Ping:
@@ -388,6 +391,7 @@ public class Server : IDisposable, IAsyncDisposable
 
                 // 2. Raise log events after packet is sent
                 OnPingEvent?.Invoke(this, new PingEventArgs(nonce, isPong: false));
+                handled = true;
                 break;
 
             case MessageType.UserRegister:
@@ -414,6 +418,7 @@ public class Server : IDisposable, IAsyncDisposable
                     string err = _userStore == null ? "Authentication is disabled on this server." : regErr;
                     await session.SendAsync(MessageType.RegisterResp, "FAIL", regEmail, err);
                 }
+                handled = true;
                 break;
 
             case MessageType.UserLogin:
@@ -439,29 +444,42 @@ public class Server : IDisposable, IAsyncDisposable
                     string err = _userStore == null ? "Authentication is disabled on this server." : loginErr;
                     await session.SendAsync(MessageType.LoginResp, "FAIL", loginEmail, err);
                 }
+                handled = true;
                 break;
 
             case MessageType.UserLogout:
                 session.IsAuthenticated = false;
                 session.User = new UserIdentifier($"conn_{session.ConnId}", $"Anonymous@{session.ConnId}");
                 await session.SendAsync(MessageType.LoginResp, "LOGOUT", "User logged out.");
+                handled = true;
                 break;
         }
 
-        // 2. Custom Protocol Extension Handlers
+        // 3. Custom Protocol Extension Handlers
         int opcode = (int)frame.MsgType;
         if (_customHandlers.TryGetValue(opcode, out var handler))
         {
             try
             {
                 await handler(session, frame);
+                handled = true;
             }
             catch (Exception ex)
             {
                 WriteLog($"Error in custom handler for opcode {opcode}: {ex.Message}");
             }
         }
+
+        // 4. Spillover / Uncategorized Message Handler (Option 2)
+        if (!handled)
+        {
+            WriteLog($"Received uncategorized frame from {session.User}: {frame}");
+            var textArgs = new TextReceivedEventArgs(session.User.ToString(), frame.ToString(), frame);
+            OnUncategorizedMessageEvent?.Invoke(this, textArgs);
+            OnTextReceivedEvent?.Invoke(this, textArgs);
+        }
     }
+
 
     /// <summary>
     /// Transmits a parsed <see cref="Message2"/> frame directly to a specific connected client session by connection ID.

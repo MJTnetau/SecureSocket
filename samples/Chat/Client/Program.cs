@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using SecureSocket;
 
@@ -90,6 +90,7 @@ internal class Program
             {
                 // Console.Title might throw on non-interactive environments
             }
+            RedrawScreen(client);
         }
 
         // Attach telemetry handlers
@@ -150,12 +151,30 @@ internal class Program
         _ = Task.Run(async () =>
         {
             int pingCount = 1;
-            while (!cts.IsCancellationRequested && client.IsConnected)
+            while (!cts.IsCancellationRequested)
             {
-                await client.SendPingAsync($"PING_{pingCount++}");
-                await Task.Delay(3000, cts.Token).ContinueWith(_ => { });
+                if (client.IsConnected)
+                {
+                    try
+                    {
+                        await client.SendPingAsync($"PING_{pingCount++}");
+                    }
+                    catch
+                    {
+                        // Ignore ping send exceptions during disconnect/reconnect
+                    }
+                }
+                try
+                {
+                    await Task.Delay(2000, cts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
             }
         }, cts.Token);
+
 
         while (!cts.IsCancellationRequested)
         {
@@ -444,12 +463,13 @@ internal class Program
                 }
 
                 // Case 4: Height >= 4 (Full Standard TUI Layout with Dividers)
-                // Row 0: Sticky Header
+                // Row 0: Sticky Header with Live Telemetry
                 Console.SetCursorPosition(0, 0);
-                string topTopic = ChannelTopics.TryGetValue(_currentChannel, out var topicStr) ? topicStr : "Dynamic public chat room";
-                string head = $"{_currentChannel} - {topTopic}";
+                string userLabelHeader = string.IsNullOrEmpty(client.User.DisplayName) ? "Anonymous" : client.User.DisplayName;
+                string head = $"{_currentChannel} [{userLabelHeader}] | Tick: #{_currentTick:D5} ({_lastTickIntervalMs:0000.00}ms) | Ping: {_latestLatencyMs:F2}ms (10-Avg: {_avg10LatencyMs:F2}ms)";
                 if (head.Length > width - 1) head = head[..(width - 1)];
                 Console.Write(head.PadRight(width - 1));
+
 
                 // Row 1: Top Divider (Full Width)
                 Console.SetCursorPosition(0, 1);

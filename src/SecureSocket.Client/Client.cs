@@ -36,7 +36,9 @@ public class Client : IDisposable, IAsyncDisposable
     private TaskCompletionSource<(bool Success, string Message)>? _authTcs;
 
     // Events matching original SecureSocket + clean C# event aliases
+    public EventHandler<RawFrameEventArgs>? OnRawFrameEvent;
     public EventHandler<TextReceivedEventArgs>? OnTextReceivedEvent;
+    public EventHandler<TextReceivedEventArgs>? OnUncategorizedMessageEvent;
     public EventHandler<StatusEventArgs>? OnStatusEvent;
     public EventHandler<LogEventArgs>? OnLogEvent;
     public EventHandler<TickEventArgs>? OnTickEvent;
@@ -44,7 +46,9 @@ public class Client : IDisposable, IAsyncDisposable
     public EventHandler<EventArgs>? OnServerConnectedEvent;
     public EventHandler<EventArgs>? OnServerDisconnectedEvent;
 
+    public event EventHandler<RawFrameEventArgs>? RawFrameReceived { add => OnRawFrameEvent += value; remove => OnRawFrameEvent -= value; }
     public event EventHandler<TextReceivedEventArgs>? TextReceived { add => OnTextReceivedEvent += value; remove => OnTextReceivedEvent -= value; }
+    public event EventHandler<TextReceivedEventArgs>? UncategorizedMessage { add => OnUncategorizedMessageEvent += value; remove => OnUncategorizedMessageEvent -= value; }
     public event EventHandler<StatusEventArgs>? Status { add => OnStatusEvent += value; remove => OnStatusEvent -= value; }
     public event EventHandler<LogEventArgs>? Log { add => OnLogEvent += value; remove => OnLogEvent -= value; }
     public event EventHandler<TickEventArgs>? Tick { add => OnTickEvent += value; remove => OnTickEvent -= value; }
@@ -329,20 +333,19 @@ public class Client : IDisposable, IAsyncDisposable
 
     private void ProcessReceivedFrame(Message2 frame)
     {
-        // Filter out background heartbeat Ticks, Pings, and Pongs from status logs
-        if (frame.MsgType != MessageType.Tick && frame.MsgType != MessageType.Ping && frame.MsgType != MessageType.Pong)
-        {
-            WriteLog($"Received frame: {frame}");
-            OnTextReceivedEvent?.Invoke(this, new TextReceivedEventArgs("Server", frame.ToString(), frame));
-        }
+        // 1. Raw Tap: Raised for EVERY frame without exception (Option 1)
+        OnRawFrameEvent?.Invoke(this, new RawFrameEventArgs("Server", frame));
 
-        // Built-in handlers
+        bool handled = false;
+
+        // 2. Built-in protocol handlers
         switch (frame.MsgType)
         {
             case MessageType.Ping:
                 string nonce = frame.GetArgument(0);
                 OnPingEvent?.Invoke(this, new PingEventArgs(nonce, isPong: false));
                 _ = SendMessageAsync(MessageType.Pong, nonce);
+                handled = true;
                 break;
 
             case MessageType.Pong:
@@ -354,6 +357,7 @@ public class Client : IDisposable, IAsyncDisposable
                     latencyMs = (Stopwatch.GetTimestamp() - sentTicks) * 1000.0 / Stopwatch.Frequency;
                 }
                 OnPingEvent?.Invoke(this, new PingEventArgs(pongNonce, isPong: true, latencyMs));
+                handled = true;
                 break;
 
             case MessageType.Tick:
@@ -361,6 +365,7 @@ public class Client : IDisposable, IAsyncDisposable
                 {
                     OnTickEvent?.Invoke(this, new TickEventArgs(tickCount, ts));
                 }
+                handled = true;
                 break;
 
             case MessageType.RegisterResp:
@@ -373,6 +378,7 @@ public class Client : IDisposable, IAsyncDisposable
                 
                 WriteLog(regMsg);
                 _authTcs?.TrySetResult((regOk, regMsg));
+                handled = true;
                 break;
 
             case MessageType.LoginResp:
@@ -400,23 +406,35 @@ public class Client : IDisposable, IAsyncDisposable
                     WriteLog(msg);
                     _authTcs?.TrySetResult((false, msg));
                 }
+                handled = true;
                 break;
         }
 
-        // Custom protocol extension handlers
+        // 3. Custom protocol extension handlers
         int opcode = (int)frame.MsgType;
         if (_customHandlers.TryGetValue(opcode, out var handler))
         {
             try
             {
                 handler(frame);
+                handled = true;
             }
             catch (Exception ex)
             {
                 WriteLog($"Error in custom handler for opcode {opcode}: {ex.Message}");
             }
         }
+
+        // 4. Spillover / Uncategorized Message Handler (Option 2)
+        if (!handled)
+        {
+            WriteLog($"Received uncategorized frame: {frame}");
+            var textArgs = new TextReceivedEventArgs("Server", frame.ToString(), frame);
+            OnUncategorizedMessageEvent?.Invoke(this, textArgs);
+            OnTextReceivedEvent?.Invoke(this, textArgs);
+        }
     }
+
 
     #region Send Operations
 

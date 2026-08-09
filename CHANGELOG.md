@@ -14,7 +14,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2026-08-10
+
+### Added
+- **Raw Stream Tap (`RawFrameReceived` / `OnRawFrameEvent`)**: Added a non-consuming observation tap event on both `Client` and `Server` that receives 100% of parsed `Message2` frames (including heartbeat Ticks, Pings, Pongs, built-in responses, and custom opcodes) prior to filtering or handler dispatch.
+- **Uncategorized Message Spillover (`UncategorizedMessage` / `OnUncategorizedMessageEvent`)**: Added a spillover event that fires exclusively for incoming frames that were NOT handled by built-in protocol cases or registered custom handlers (`RegisterHandler`).
+- **`RawFrameEventArgs`**: Event arguments carrying `SenderInfo` and the raw `Message2 Frame`.
+
+### Changed
+- **Message Routing Pipeline Refactoring**: Updated `ProcessReceivedFrame` (`Client`) and `ProcessReceivedFrameAsync` (`Server`) to route frames through a clean 4-stage pipeline:
+  1. Stage 1: Raw Tap (`RawFrameReceived`)
+  2. Stage 2: Built-in Switch Handlers (`Ping`, `Pong`, `Tick`, `RegisterResp`, `LoginResp`)
+  3. Stage 3: Custom Opcode Handlers (`RegisterHandler`)
+  4. Stage 4: Uncategorized Spillover (`UncategorizedMessage` / `TextReceived`)
+- **Eliminated Duplicate Logs & Text Events**: Standard message handling no longer triggers duplicate log entries or double text received events when custom handlers are registered.
+- **Sample Chat Application UI & Telemetry**:
+  - Fixed background ping loop in `samples/Chat/Client` to maintain continuous ping transmission without exiting early on connection setup.
+  - Updated Chat TUI sticky header (Row 0) to render live tick counter, tick interval, and 10-average ping latency telemetry directly on screen.
+
+---
+
 ## [1.1.0] - 2026-08-08
+
 
 ### Added
 - **Auto-Generated Development Certificates with SANs**: `CertificateHelper.LoadCertificate` automatically creates and persists a self-signed `.pfx` certificate on disk when given a non-existent `.pfx` file path.
