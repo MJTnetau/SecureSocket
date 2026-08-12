@@ -34,7 +34,7 @@ jobs:
         id: login
         uses: NuGet/login@v1
         with:
-          user: MJTnetau
+          user: MJT
 
       - name: Push to NuGet
         run: dotnet nuget push "./nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.nuget-api-key }} --skip-duplicate
