@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 
 namespace SecureSocket.Auth;
 
@@ -60,12 +60,16 @@ public class SqliteUserStore : IUserStore
         }
     }
 
+    /// <summary>Checks whether a display name is reserved.</summary>
     public static bool IsReservedName(string name) => UserStoreHelper.IsReservedName(name);
 
+    /// <summary>Attempts to sanitize a display name input string.</summary>
     public static bool TrySanitizeDisplayName(string? inputName, string defaultEmail, out string sanitizedName, out string error) =>
         UserStoreHelper.TrySanitizeDisplayName(inputName, defaultEmail, out sanitizedName, out error);
 
+    /// <summary>Registers a new user account with hashed password in SQLite.</summary>
     public bool RegisterUser(string email, string password, string? displayName, out string errorMessage)
+
     {
         errorMessage = string.Empty;
 
@@ -152,6 +156,7 @@ public class SqliteUserStore : IUserStore
         }
     }
 
+    /// <summary>Validates a user login request against stored hash.</summary>
     public bool ValidateUser(string email, string password, out UserIdentifier user, out string errorMessage)
     {
         user = UserIdentifier.Anonymous;
@@ -205,6 +210,7 @@ public class SqliteUserStore : IUserStore
         }
     }
 
+    /// <summary>Updates the display name for a registered user.</summary>
     public bool UpdateDisplayName(string userId, string newDisplayName)
     {
         if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(newDisplayName))
@@ -253,7 +259,9 @@ public class SqliteUserStore : IUserStore
         }
     }
 
+    /// <summary>Gets the display name for a given user ID.</summary>
     public string GetDisplayName(string userId)
+
     {
         if (string.IsNullOrWhiteSpace(userId))
             return "Unknown";

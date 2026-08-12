@@ -36,24 +36,40 @@ public class Server : IDisposable, IAsyncDisposable
     private readonly ConcurrentDictionary<int, (int Attempts, DateTime WindowStart)> _authAttempts = new();
 
     // Events (Idiomatic C# names + backwards compatible aliases)
+    /// <summary>Client connected event delegate handler.</summary>
     public EventHandler<ClientConnectedEventArgs>? OnClientConnectedEvent;
+    /// <summary>Client disconnected event delegate handler.</summary>
     public EventHandler<ClientDisconnectEventArgs>? OnClientDisconnectedEvent;
+    /// <summary>Raw frame event delegate handler.</summary>
     public EventHandler<RawFrameEventArgs>? OnRawFrameEvent;
+    /// <summary>Text received event delegate handler.</summary>
     public EventHandler<TextReceivedEventArgs>? OnTextReceivedEvent;
+    /// <summary>Uncategorized message event delegate handler.</summary>
     public EventHandler<TextReceivedEventArgs>? OnUncategorizedMessageEvent;
+    /// <summary>Status event delegate handler.</summary>
     public EventHandler<StatusEventArgs>? OnStatusEvent;
+    /// <summary>Tick event delegate handler.</summary>
     public EventHandler<TickEventArgs>? OnTickEvent;
+    /// <summary>Ping event delegate handler.</summary>
     public EventHandler<PingEventArgs>? OnPingEvent;
 
-    public event EventHandler<ClientConnectedEventArgs>? ClientConnected { add => OnClientConnectedEvent += value; remove => OnClientConnectedEvent -= value; }
-    public event EventHandler<ClientDisconnectEventArgs>? ClientDisconnected { add => OnClientDisconnectedEvent += value; remove => OnClientDisconnectedEvent -= value; }
-    public event EventHandler<RawFrameEventArgs>? RawFrameReceived { add => OnRawFrameEvent += value; remove => OnRawFrameEvent -= value; }
-    public event EventHandler<TextReceivedEventArgs>? TextReceived { add => OnTextReceivedEvent += value; remove => OnTextReceivedEvent -= value; }
-    public event EventHandler<TextReceivedEventArgs>? UncategorizedMessage { add => OnUncategorizedMessageEvent += value; remove => OnUncategorizedMessageEvent -= value; }
-    public event EventHandler<StatusEventArgs>? Status { add => OnStatusEvent += value; remove => OnStatusEvent -= value; }
-    public event EventHandler<TickEventArgs>? Tick { add => OnTickEvent += value; remove => OnTickEvent -= value; }
-    public event EventHandler<PingEventArgs>? Ping { add => OnPingEvent += value; remove => OnPingEvent -= value; }
 
+    /// <summary>Raised when a client completes TLS handshake.</summary>
+    public event EventHandler<ClientConnectedEventArgs>? ClientConnected { add => OnClientConnectedEvent += value; remove => OnClientConnectedEvent -= value; }
+    /// <summary>Raised when a client disconnects.</summary>
+    public event EventHandler<ClientDisconnectEventArgs>? ClientDisconnected { add => OnClientDisconnectedEvent += value; remove => OnClientDisconnectedEvent -= value; }
+    /// <summary>Raised for 100% of received frames (Option 1 raw tap observation).</summary>
+    public event EventHandler<RawFrameEventArgs>? RawFrameReceived { add => OnRawFrameEvent += value; remove => OnRawFrameEvent -= value; }
+    /// <summary>Raised when an unhandled text frame arrives.</summary>
+    public event EventHandler<TextReceivedEventArgs>? TextReceived { add => OnTextReceivedEvent += value; remove => OnTextReceivedEvent -= value; }
+    /// <summary>Raised when an unhandled frame spills over (Option 2).</summary>
+    public event EventHandler<TextReceivedEventArgs>? UncategorizedMessage { add => OnUncategorizedMessageEvent += value; remove => OnUncategorizedMessageEvent -= value; }
+    /// <summary>Raised when log/status messages are written.</summary>
+    public event EventHandler<StatusEventArgs>? Status { add => OnStatusEvent += value; remove => OnStatusEvent -= value; }
+    /// <summary>Raised on every heartbeat tick interval.</summary>
+    public event EventHandler<TickEventArgs>? Tick { add => OnTickEvent += value; remove => OnTickEvent -= value; }
+    /// <summary>Raised when a ping is received or pong processed.</summary>
+    public event EventHandler<PingEventArgs>? Ping { add => OnPingEvent += value; remove => OnPingEvent -= value; }
 
     #region Properties
 
@@ -65,19 +81,27 @@ public class Server : IDisposable, IAsyncDisposable
     /// </summary>
     public bool IsRunning => _isRunning;
 
+    /// <summary>Gets the current count of active client sessions.</summary>
     public int GetClientCount => _clients.Count;
 
+    /// <summary>Gets a read-only dictionary of active connected client sessions by connection ID.</summary>
     public IReadOnlyDictionary<int, SslClientSession> Clients => _clients;
 
+    /// <summary>Gets the configured tick interval in milliseconds.</summary>
     public int GetInterval => _interval;
 
+    /// <summary>Gets the last tick count emitted.</summary>
     public int GetLastTick => _tickCount;
 
+    /// <summary>Gets the execution time string for the last tick broadcast.</summary>
     public string GetLastStopwatch => _tickLastStopwatch;
 
+    /// <summary>Gets or sets a value indicating whether verbose diagnostic status logging is enabled.</summary>
     public bool IsVerbose { get => _isVerbose; set => _isVerbose = value; }
 
+    /// <summary>Gets the active user authentication store, if configured.</summary>
     public IUserStore? UserStore => _userStore;
+
 
     /// <summary>
     /// Gets the strongly-typed server configuration options.

@@ -1,4 +1,4 @@
-﻿using System.IO.Pipelines;
+using System.IO.Pipelines;
 using System.Net;
 using System.Net.Security;
 
@@ -157,8 +157,12 @@ public class SslClientSession : IDisposable, IAsyncDisposable
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Returns a string representation of the client session.
+    /// </summary>
     public override string ToString()
     {
         return $"Client#{ConnId} ({User}) [{RemoteEndPoint}]";
     }
+
 }

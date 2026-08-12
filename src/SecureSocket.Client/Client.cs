@@ -36,24 +36,43 @@ public class Client : IDisposable, IAsyncDisposable
     private TaskCompletionSource<(bool Success, string Message)>? _authTcs;
 
     // Events matching original SecureSocket + clean C# event aliases
+    /// <summary>Raw frame event delegate handler.</summary>
     public EventHandler<RawFrameEventArgs>? OnRawFrameEvent;
+    /// <summary>Text received event delegate handler.</summary>
     public EventHandler<TextReceivedEventArgs>? OnTextReceivedEvent;
+    /// <summary>Uncategorized message event delegate handler.</summary>
     public EventHandler<TextReceivedEventArgs>? OnUncategorizedMessageEvent;
+    /// <summary>Status event delegate handler.</summary>
     public EventHandler<StatusEventArgs>? OnStatusEvent;
+    /// <summary>Log event delegate handler.</summary>
     public EventHandler<LogEventArgs>? OnLogEvent;
+    /// <summary>Tick event delegate handler.</summary>
     public EventHandler<TickEventArgs>? OnTickEvent;
+    /// <summary>Ping event delegate handler.</summary>
     public EventHandler<PingEventArgs>? OnPingEvent;
+    /// <summary>Server connected event delegate handler.</summary>
     public EventHandler<EventArgs>? OnServerConnectedEvent;
+    /// <summary>Server disconnected event delegate handler.</summary>
     public EventHandler<EventArgs>? OnServerDisconnectedEvent;
 
+
+    /// <summary>Raised when a raw message frame arrives (Option 1 raw tap observation).</summary>
     public event EventHandler<RawFrameEventArgs>? RawFrameReceived { add => OnRawFrameEvent += value; remove => OnRawFrameEvent -= value; }
+    /// <summary>Raised when a text frame arrives.</summary>
     public event EventHandler<TextReceivedEventArgs>? TextReceived { add => OnTextReceivedEvent += value; remove => OnTextReceivedEvent -= value; }
+    /// <summary>Raised when an unhandled message frame arrives (Option 2 spillover).</summary>
     public event EventHandler<TextReceivedEventArgs>? UncategorizedMessage { add => OnUncategorizedMessageEvent += value; remove => OnUncategorizedMessageEvent -= value; }
+    /// <summary>Raised when status updates are logged.</summary>
     public event EventHandler<StatusEventArgs>? Status { add => OnStatusEvent += value; remove => OnStatusEvent -= value; }
+    /// <summary>Raised when internal log messages are generated.</summary>
     public event EventHandler<LogEventArgs>? Log { add => OnLogEvent += value; remove => OnLogEvent -= value; }
+    /// <summary>Raised when a server heartbeat Tick arrives.</summary>
     public event EventHandler<TickEventArgs>? Tick { add => OnTickEvent += value; remove => OnTickEvent -= value; }
+    /// <summary>Raised when a Ping or Pong packet is processed.</summary>
     public event EventHandler<PingEventArgs>? Ping { add => OnPingEvent += value; remove => OnPingEvent -= value; }
+    /// <summary>Raised when connected to the server.</summary>
     public event EventHandler<EventArgs>? ServerConnected { add => OnServerConnectedEvent += value; remove => OnServerConnectedEvent -= value; }
+    /// <summary>Raised when disconnected from the server.</summary>
     public event EventHandler<EventArgs>? ServerDisconnected { add => OnServerDisconnectedEvent += value; remove => OnServerDisconnectedEvent -= value; }
 
     #region Properties
@@ -61,14 +80,21 @@ public class Client : IDisposable, IAsyncDisposable
     // Never cache this variable in a CPU register.
     private volatile bool _isClosed;
 
+    /// <summary>Gets a value indicating whether the client is currently connected to the server.</summary>
     public bool IsConnected => _connected;
+    /// <summary>Gets a value indicating whether a connection attempt is in progress.</summary>
     public bool IsConnecting => _connecting;
+    /// <summary>Gets or sets a value indicating whether to automatically attempt reconnection when disconnected.</summary>
     public bool AutoReconnect { get => _retryConnect; set => _retryConnect = value; }
 
+    /// <summary>Gets the target server IP address.</summary>
     public IPAddress ServerIPAddress => _serverIP;
+    /// <summary>Gets the target server port.</summary>
     public int ServerPort => _serverPort;
 
+    /// <summary>Gets the current authenticated user identity.</summary>
     public UserIdentifier User { get; private set; } = UserIdentifier.Anonymous;
+
 
     /// <summary>
     /// Gets the strongly-typed client configuration options.

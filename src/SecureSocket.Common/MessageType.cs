@@ -1,9 +1,12 @@
-﻿namespace SecureSocket;
+#pragma warning disable CS1591
+
+namespace SecureSocket;
 
 /// <summary>
 /// Defines message types used in core socket communication.
 /// Supports clean casting from custom application opcodes (e.g. Chat = 80).
 /// </summary>
+
 public enum MessageType : int
 {
     // Illegal range (00-09)

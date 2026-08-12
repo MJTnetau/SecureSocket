@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace SecureSocket.Auth;
@@ -20,6 +20,10 @@ public class JsonFileUserStore : IUserStore
     private readonly object _fileLock = new();
     private readonly ConcurrentDictionary<string, JsonUserDto> _users = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="JsonFileUserStore"/>.
+    /// </summary>
+    /// <param name="filePath">Target JSON file path for user storage.</param>
     public JsonFileUserStore(string filePath = "users.json")
     {
         _filePath = Path.GetFullPath(filePath);
@@ -61,6 +65,7 @@ public class JsonFileUserStore : IUserStore
         }
     }
 
+    /// <summary>Registers a user account in the JSON file user store.</summary>
     public bool RegisterUser(string email, string password, string? displayName, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -108,6 +113,7 @@ public class JsonFileUserStore : IUserStore
         return true;
     }
 
+    /// <summary>Validates a user against JSON file records.</summary>
     public bool ValidateUser(string email, string password, out UserIdentifier user, out string errorMessage)
     {
         user = UserIdentifier.Anonymous;
@@ -137,6 +143,7 @@ public class JsonFileUserStore : IUserStore
         return true;
     }
 
+    /// <summary>Updates display name in the JSON file user store.</summary>
     public bool UpdateDisplayName(string userId, string newDisplayName)
     {
         if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(newDisplayName))
@@ -163,7 +170,9 @@ public class JsonFileUserStore : IUserStore
         return false;
     }
 
+    /// <summary>Gets the display name for a user ID.</summary>
     public string GetDisplayName(string userId)
+
     {
         if (string.IsNullOrWhiteSpace(userId))
             return "Unknown";

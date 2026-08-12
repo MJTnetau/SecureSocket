@@ -20,6 +20,11 @@ public class ClientConnectedEventArgs : EventArgs
     /// </summary>
     public DateTime ConnectedAt { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="ClientConnectedEventArgs"/>.
+    /// </summary>
+    /// <param name="connId">The client connection ID.</param>
+    /// <param name="user">The connected user identity.</param>
     public ClientConnectedEventArgs(int connId, UserIdentifier user)
     {
         ConnId = connId;
@@ -48,6 +53,12 @@ public class ClientDisconnectEventArgs : EventArgs
     /// </summary>
     public string Reason { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="ClientDisconnectEventArgs"/>.
+    /// </summary>
+    /// <param name="connId">The client connection ID.</param>
+    /// <param name="user">The user identity.</param>
+    /// <param name="reason">The disconnection reason.</param>
     public ClientDisconnectEventArgs(int connId, UserIdentifier user, string reason = "Disconnected")
     {
         ConnId = connId;
@@ -76,6 +87,12 @@ public class TextReceivedEventArgs : EventArgs
     /// </summary>
     public Message2? Frame { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="TextReceivedEventArgs"/>.
+    /// </summary>
+    /// <param name="senderInfo">Identification of the sender.</param>
+    /// <param name="messageText">The formatted message text.</param>
+    /// <param name="frame">Optional parsed Message2 frame.</param>
     public TextReceivedEventArgs(string senderInfo, string messageText, Message2? frame = null)
     {
         SenderInfo = senderInfo;
@@ -89,8 +106,15 @@ public class TextReceivedEventArgs : EventArgs
 /// </summary>
 public class StatusEventArgs : EventArgs
 {
+    /// <summary>
+    /// Gets the status message text.
+    /// </summary>
     public string StatusMessage { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="StatusEventArgs"/>.
+    /// </summary>
+    /// <param name="statusMessage">The status update text.</param>
     public StatusEventArgs(string statusMessage)
     {
         StatusMessage = statusMessage;
@@ -102,8 +126,15 @@ public class StatusEventArgs : EventArgs
 /// </summary>
 public class LogEventArgs : EventArgs
 {
+    /// <summary>
+    /// Gets the internal log message text.
+    /// </summary>
     public string Message { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="LogEventArgs"/>.
+    /// </summary>
+    /// <param name="message">The internal log text.</param>
     public LogEventArgs(string message)
     {
         Message = message;
@@ -115,10 +146,27 @@ public class LogEventArgs : EventArgs
 /// </summary>
 public class PingEventArgs : EventArgs
 {
+    /// <summary>
+    /// Gets the ping/pong nonce string.
+    /// </summary>
     public string Nonce { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this packet is a Pong reply.
+    /// </summary>
     public bool IsPong { get; }
+
+    /// <summary>
+    /// Gets the measured round-trip latency in milliseconds.
+    /// </summary>
     public double LatencyMs { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="PingEventArgs"/>.
+    /// </summary>
+    /// <param name="nonce">The nonce identifier.</param>
+    /// <param name="isPong">True if pong reply; false if ping request.</param>
+    /// <param name="latencyMs">Measured round-trip latency in milliseconds.</param>
     public PingEventArgs(string nonce, bool isPong, double latencyMs = 0)
     {
         Nonce = nonce;
@@ -132,9 +180,21 @@ public class PingEventArgs : EventArgs
 /// </summary>
 public class TickEventArgs : EventArgs
 {
+    /// <summary>
+    /// Gets the current tick sequence counter.
+    /// </summary>
     public int TickCount { get; }
+
+    /// <summary>
+    /// Gets the UTC timestamp when the tick was emitted.
+    /// </summary>
     public DateTime Timestamp { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="TickEventArgs"/>.
+    /// </summary>
+    /// <param name="tickCount">The tick sequence number.</param>
+    /// <param name="timestamp">The tick timestamp.</param>
     public TickEventArgs(int tickCount, DateTime timestamp)
     {
         TickCount = tickCount;
@@ -157,10 +217,16 @@ public class RawFrameEventArgs : EventArgs
     /// </summary>
     public Message2 Frame { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="RawFrameEventArgs"/>.
+    /// </summary>
+    /// <param name="senderInfo">Identification of the sender.</param>
+    /// <param name="frame">The raw parsed Message2 frame.</param>
     public RawFrameEventArgs(string senderInfo, Message2 frame)
     {
         SenderInfo = senderInfo;
         Frame = frame ?? throw new ArgumentNullException(nameof(frame));
     }
 }
+
 
