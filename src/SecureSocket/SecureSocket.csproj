@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SecureSocket</RootNamespace>
+    <AssemblyName>SecureSocket</AssemblyName>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>SecureSocket</PackageId>
+    <Version>1.1.0</Version>
+    <Title>SecureSocket</Title>
+    <Authors>SecureSocket Contributors</Authors>
+    <Description>Modern, zero-allocation C# TLS networking library for .NET built on System.IO.Pipelines featuring UTF-8 header framing and raw binary payload streaming. Includes client, server, and authentication modules.</Description>
+    <PackageTags>socket;tls;ssl;client;server;pipelines;framing;zero-allocation;high-performance;async;network</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/MJTnetau/SecureSocket</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MJTnetau/SecureSocket.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SecureSocket.Client\SecureSocket.Client.csproj" />
+    <ProjectReference Include="..\SecureSocket.Server\SecureSocket.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

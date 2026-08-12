@@ -15,6 +15,7 @@
     <Project Path="samples/Chat/Server/Chat.Server.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/SecureSocket/SecureSocket.csproj" />
     <Project Path="src/SecureSocket.Client/SecureSocket.Client.csproj" />
     <Project Path="src/SecureSocket.Common/SecureSocket.Common.csproj" />
     <Project Path="src/SecureSocket.Server.Auth.Sqlite/SecureSocket.Server.Auth.Sqlite.csproj" />

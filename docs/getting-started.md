@@ -14,7 +14,25 @@ The **SecureSocket** core libraries multi-target **`.NET 8.0 LTS`** and **`.NET 
 - **On .NET 9+ / .NET 10.0**: The libraries leverage base framework `System.IO.Pipelines` and native `X509CertificateLoader` APIs.
 - **Sample Applications**: Sample projects in `samples/` target `.NET 8.0` for out-of-the-box compatibility across standard developer environments.
 
-Include `SecureSocket` projects directly in your solution:
+### NuGet Package Installation
+
+Install via the [.NET CLI](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-add-package):
+
+```bash
+# Standard Install (Includes Client, Server, and Common - Zero third-party dependencies)
+dotnet add package SecureSocket
+
+# Optional SQLite Auth Extension (Only if you need SqliteUserStore)
+dotnet add package SecureSocket.Server.Auth.Sqlite
+```
+
+- **Standard Install (`dotnet add package SecureSocket`)**: Downloads `SecureSocket.Client`, `SecureSocket.Server`, and `SecureSocket.Common`. Has **zero third-party dependencies**—SQLite is not downloaded or included in your application.
+- **SQLite Auth Extension (`dotnet add package SecureSocket.Server.Auth.Sqlite`)**: Explicitly adds the SQLite user store authentication package when persistent database auth is required.
+- **Modular Installs**: You can also install `SecureSocket.Client` or `SecureSocket.Server` individually for client-only or server-only projects.
+
+### Local Project Reference
+
+Alternatively, include `SecureSocket` projects directly in your solution:
 
 ```xml
 <ItemGroup>
