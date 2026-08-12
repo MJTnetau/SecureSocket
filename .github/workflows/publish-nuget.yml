@@ -30,5 +30,11 @@ jobs:
       - name: Build & Pack
         run: dotnet pack -c Release -o ./nupkgs
 
+      - name: NuGet Login (Trusted Publisher OIDC)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: MJTnetau
+
       - name: Push to NuGet
-        run: dotnet nuget push "./nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        run: dotnet nuget push "./nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.nuget-api-key }} --skip-duplicate
